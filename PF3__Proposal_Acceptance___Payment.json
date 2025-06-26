@@ -1,0 +1,159 @@
+{
+  "name": "PF3- Proposal Acceptance & Payment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "140b443a-205c-4cc8-b885-7d775cc4cd9d",
+        "options": {}
+      },
+      "id": "7bcd8e22-8ad5-46e2-b477-ad361ca8cb61",
+      "name": "Proposal Accepted",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        360
+      ],
+      "webhookId": "140b443a-205c-4cc8-b885-7d775cc4cd9d"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "clientEmail",
+              "value": "={{$json.email}}"
+            },
+            {
+              "name": "taskId",
+              "value": "={{$json.task_id}}"
+            },
+            {
+              "name": "proposalAmount",
+              "value": "={{$json.amount}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a4724a26-eb18-48a5-a620-7548a8c4e576",
+      "name": "Extract Acceptance Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        140,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "status": "proposal accepted"
+        }
+      },
+      "id": "fb035639-be9c-42b9-bc4a-539a3bfcfec9",
+      "name": "Update Status - Accepted",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        360,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "paymentLink"
+      },
+      "id": "181b2a4f-fb39-4765-bd51-3917f5a7fb9a",
+      "name": "Create Stripe Payment Link",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [
+        580,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Next steps - Securing your photography date",
+        "message": "Hi there,\n\nFantastic! I'm thrilled you've chosen us for your upcoming event.\n\nTo secure your date, please complete the deposit payment (50% of total): {{$node['Create Stripe Payment Link'].json.url}}\n\nOnce payment is received, I'll send your complete onboarding package including:\n• Dedicated Google Drive folder\n• Slack channel for communication\n• Pre-shoot questionnaire\n• Contract for signing\n\nThank you for trusting us with your special moments!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "f9f87f3b-2e76-4fd9-82d0-f1d8c2d55091",
+      "name": "Send Payment Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        820,
+        360
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Proposal Accepted": {
+      "main": [
+        [
+          {
+            "node": "Extract Acceptance Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Acceptance Data": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Accepted",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Stripe Payment Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Stripe Payment Link": {
+      "main": [
+        [
+          {
+            "node": "Send Payment Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "01efc65f-bfb0-40ed-910c-8ad9a6d7dacb",
+  "meta": {
+    "instanceId": "4275106c8fd02c2533edab3f7741b7db420af0691c825fa5d46bbabd00ca51b7"
+  },
+  "id": "NHPl8WHVEeUH6BXN",
+  "tags": [
+    {
+      "createdAt": "2025-06-21T04:43:25.850Z",
+      "updatedAt": "2025-06-21T04:43:25.850Z",
+      "id": "AzmQYH3UHtQQ4KLW",
+      "name": "Sales Funnel"
+    },
+    {
+      "createdAt": "2025-06-21T04:43:41.023Z",
+      "updatedAt": "2025-06-21T04:43:41.023Z",
+      "id": "SdEyU151wZVOsuZr",
+      "name": "Photography Agency"
+    }
+  ]
+}

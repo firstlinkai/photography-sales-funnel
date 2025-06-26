@@ -1,0 +1,161 @@
+{
+  "name": "PF6- Event Day & Completion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9134c83c-3c29-4f15-bd00-899492ba0dd6",
+        "options": {}
+      },
+      "id": "d409474b-5055-41b3-87fb-afd60a2994b8",
+      "name": "Event Completed Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        1740
+      ],
+      "webhookId": "9134c83c-3c29-4f15-bd00-899492ba0dd6"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "taskId",
+              "value": "={{$json.task_id}}"
+            },
+            {
+              "name": "eventDate",
+              "value": "={{$json.event_date}}"
+            },
+            {
+              "name": "clientEmail",
+              "value": "={{$json.client_email}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "008031e7-a041-4e84-ba9d-850a34e00639",
+      "name": "Extract Completion Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        140,
+        1740
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "get"
+      },
+      "id": "9a056bfd-1996-41b4-9739-05b49c06521c",
+      "name": "Get Completed Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        360,
+        1740
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Thank you for an amazing {{$node['Get Completed Task'].json.name.split(' - ')[1].replace(' Photography', '')}}!",
+        "message": "Hi {{$node['Get Completed Task'].json.name.split(' - ')[0]}},\n\nWhat an incredible event! Thank you for allowing us to capture your special day.\n\nYour photos are now in processing. Here's what to expect:\n\n📸 Sneak peek (5-10 photos): 2-3 days\n📁 Full gallery: 2-3 weeks\n\nI'll keep you updated on the progress through our Slack channel: {{$node['Get Completed Task'].json.custom_fields.find(field => field.id === 'SLACK_CHANNEL_FIELD_ID').value}}\n\nYou can also check your Google Drive folder anytime: {{$node['Get Completed Task'].json.custom_fields.find(field => field.id === 'GDRIVE_FOLDER_FIELD_ID').value}}\n\nThank you again for trusting us with your memories!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "23f04843-5a8e-41d1-9495-cb84255bc2a2",
+      "name": "Send Thank You Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        580,
+        1740
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "content": "{{$node['Get Completed Task'].json.description}}\n\n--- EVENT COMPLETED ---\nDate: {{$node['Extract Completion Data'].json.eventDate}}\nPhotos in processing\nClient notified of timeline",
+          "status": "event completed"
+        }
+      },
+      "id": "20f87ee0-3fb0-4e1b-b070-aff200efcb51",
+      "name": "Update Status - Completed",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        800,
+        1740
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Event Completed Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Completion Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Completion Data": {
+      "main": [
+        [
+          {
+            "node": "Get Completed Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Completed Task": {
+      "main": [
+        [
+          {
+            "node": "Send Thank You Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9f44e987-95e7-42d7-8a3c-d9a5dccfd7a1",
+  "meta": {
+    "instanceId": "4275106c8fd02c2533edab3f7741b7db420af0691c825fa5d46bbabd00ca51b7"
+  },
+  "id": "nOlLaOmIOs5X5GxI",
+  "tags": [
+    {
+      "createdAt": "2025-06-21T04:43:25.850Z",
+      "updatedAt": "2025-06-21T04:43:25.850Z",
+      "id": "AzmQYH3UHtQQ4KLW",
+      "name": "Sales Funnel"
+    },
+    {
+      "createdAt": "2025-06-21T04:43:41.023Z",
+      "updatedAt": "2025-06-21T04:43:41.023Z",
+      "id": "SdEyU151wZVOsuZr",
+      "name": "Photography Agency"
+    }
+  ]
+}

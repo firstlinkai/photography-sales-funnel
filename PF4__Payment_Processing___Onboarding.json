@@ -1,0 +1,437 @@
+{
+  "name": "PF4- Payment Processing & Onboarding",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "157f202c-28a9-4ee8-8d79-aa8c2d967361",
+        "options": {}
+      },
+      "id": "6da20c1a-f382-4f25-a416-bd9944f395b5",
+      "name": "Stripe Payment Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        60,
+        860
+      ],
+      "webhookId": "157f202c-28a9-4ee8-8d79-aa8c2d967361"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "paymentIntentId",
+              "value": "={{$json.data.object.payment_intent}}"
+            },
+            {
+              "name": "customerEmail",
+              "value": "={{$json.data.object.customer_details.email}}"
+            },
+            {
+              "name": "amountPaid",
+              "value": "={{$json.data.object.amount_total / 100}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3610f0bf-f087-4c9d-a35e-4f3560c76dc5",
+      "name": "Extract Payment Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        280,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "space": "SPACE_ID",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "id": "51e8b8a0-cb47-49b0-83a1-8c4cce65e39f",
+      "name": "Find Task by Email",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        500,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "folder",
+        "name": "={{$node['Find Task by Email'].json[0].name}} - {{DateTime.now().toFormat('yyyy-MM-dd')}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "03514864-32c2-445c-bd0a-e49bc1426a4a",
+      "name": "Create Google Drive Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        760,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "folder",
+        "name": "01_Planning",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "525f5ecd-796d-498d-a99b-e89cda8f8923",
+      "name": "Create Planning Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "folder",
+        "name": "02_Inspiration",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "94b67cab-45b0-45f7-957f-bc967295969d",
+      "name": "Create Inspiration Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "folder",
+        "name": "03_Raw_Photos",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "12ec64aa-4dc9-44d9-bcc9-7ad7e8656e0c",
+      "name": "Create Raw Photos Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "folder",
+        "name": "04_Edited_Photos",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "7f75f8d2-b600-41a5-8369-3b5b94930901",
+      "name": "Create Edited Photos Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "folder",
+        "name": "05_Final_Delivery",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "66cea71f-2292-48bc-b4c0-b15e08d4a826",
+      "name": "Create Final Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        1180
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "folder",
+        "name": "06_Contracts",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "fa5f3b59-b8f5-4deb-8420-d7994134dba5",
+      "name": "Create Contracts Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1100,
+        1340
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "channelId": "={{$node['Find Task by Email'].json[0].name.toLowerCase().replace(/[^a-z0-9]/g, '-')}}",
+        "additionalFields": {}
+      },
+      "id": "ddc8c808-fd03-4ca1-9f4e-9ba38765cce1",
+      "name": "Create Slack Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        1540
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "status": "deposit received"
+        }
+      },
+      "id": "07e5922e-9c71-4b51-9e87-af53d1a33886",
+      "name": "Update Status - Deposit Received",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        860
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Welcome to the team! Your photography onboarding kit",
+        "message": "Hi {{$node['Find Task by Email'].json[0].name.split(' - ')[0]}},\n\nWelcome aboard! Payment received successfully.\n\nHere's everything you need to get started:\n\n📁 Google Drive folder: {{$node['Create Google Drive Folder'].json.webViewLink}}\n💬 Slack channel: #{{$node['Create Slack Channel'].json.channel.name}}\n📋 Pre-shoot questionnaire: [QUESTIONNAIRE_LINK]\n\nYour event is officially in our calendar for {{$node['Find Task by Email'].json[0].custom_fields.find(field => field.id === 'EVENT_DATE_FIELD_ID').value}}!\n\nI'll be in touch soon with next steps and timeline.\n\nThank you for choosing us!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "9468edde-36e5-4569-8d53-778c6fdacde6",
+      "name": "Send Onboarding Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        760
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Stripe Payment Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Payment Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Payment Data": {
+      "main": [
+        [
+          {
+            "node": "Find Task by Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Task by Email": {
+      "main": [
+        [
+          {
+            "node": "Create Google Drive Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Slack Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Google Drive Folder": {
+      "main": [
+        [
+          {
+            "node": "Create Planning Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Inspiration Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Raw Photos Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Edited Photos Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Final Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Contracts Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Contracts Folder": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Deposit Received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Slack Channel": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Deposit Received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status - Deposit Received": {
+      "main": [
+        [
+          {
+            "node": "Send Onboarding Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5b586c4b-fa6e-4891-b4e1-a46d378436c5",
+  "meta": {
+    "instanceId": "4275106c8fd02c2533edab3f7741b7db420af0691c825fa5d46bbabd00ca51b7"
+  },
+  "id": "G5N2xExH4eSOL4BE",
+  "tags": [
+    {
+      "createdAt": "2025-06-21T04:43:25.850Z",
+      "updatedAt": "2025-06-21T04:43:25.850Z",
+      "id": "AzmQYH3UHtQQ4KLW",
+      "name": "Sales Funnel"
+    },
+    {
+      "createdAt": "2025-06-21T04:43:41.023Z",
+      "updatedAt": "2025-06-21T04:43:41.023Z",
+      "id": "SdEyU151wZVOsuZr",
+      "name": "Photography Agency"
+    }
+  ]
+}
