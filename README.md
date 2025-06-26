@@ -22,6 +22,15 @@ This system captures the entire client journey, from initial inquiry to final pa
 Why this matters:
 While this was built with a photography agency in mind, the real strength lies in its adaptability. Most service-based businesses share a similar customer journey—meaning this system can be applied to coaches, consultants, creative agencies, freelancers, event planners, and more.
 
+
+----------------------
+
+
+🔧 Workflow Structure Note
+To keep the automation process organized and manageable, I’ve divided the main n8n workflow into multiple sub-workflows, each representing a specific stage. The full setup involves 5–6 webhooks and can become visually cluttered on a single canvas.
+
+To address this, I structured the workflows using clearly defined stages, labeled from PF1 to PF8. This modular approach improves clarity, simplifies debugging, and makes it easier to scale or update specific parts of the system independently.
+
 By automating these repeatable tasks, business owners can:
 - Save time
 - Cut costs
