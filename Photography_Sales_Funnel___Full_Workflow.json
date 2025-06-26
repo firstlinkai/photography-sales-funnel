@@ -1,0 +1,1800 @@
+{
+  "name": "Photography Sales Funnel - Full Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "be192ad4-7ece-4c0f-ba67-c28fbdd48dc5",
+        "options": {}
+      },
+      "id": "c92ac0a5-f42f-4414-871b-6ade2e2dbc0e",
+      "name": "Typeform Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -320
+      ],
+      "webhookId": "be192ad4-7ece-4c0f-ba67-c28fbdd48dc5"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "clientName",
+              "value": "={{$json.form_response.answers.find(answer => answer.field.id === 'name_field_id').text}}"
+            },
+            {
+              "name": "clientEmail",
+              "value": "={{$json.form_response.answers.find(answer => answer.field.id === 'email_field_id').email}}"
+            },
+            {
+              "name": "clientPhone",
+              "value": "={{$json.form_response.answers.find(answer => answer.field.id === 'phone_field_id').phone_number}}"
+            },
+            {
+              "name": "eventType",
+              "value": "={{$json.form_response.answers.find(answer => answer.field.id === 'event_type_field_id').choice.label}}"
+            },
+            {
+              "name": "eventDate",
+              "value": "={{$json.form_response.answers.find(answer => answer.field.id === 'event_date_field_id').date}}"
+            },
+            {
+              "name": "budget",
+              "value": "={{$json.form_response.answers.find(answer => answer.field.id === 'budget_field_id').choice.label}}"
+            },
+            {
+              "name": "additionalDetails",
+              "value": "={{$json.form_response.answers.find(answer => answer.field.id === 'details_field_id').text}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "33c2c97a-79d4-4187-9766-91b79b06caff",
+      "name": "Extract Form Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        220,
+        -320
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Thank you for your photography inquiry, {{$node['Extract Form Data'].json.clientName}}!",
+        "message": "Hi {{$node['Extract Form Data'].json.clientName}},\n\nThank you for reaching out! We're excited about the possibility of capturing your {{$node['Extract Form Data'].json.eventType}}.\n\nWe'll be in touch within 24 hours to discuss your vision and next steps.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "b54ad6eb-6996-449f-9aba-87c318b221b4",
+      "name": "Send Greeting Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        440,
+        -420
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "space": "SPACE_ID",
+        "folderless": true,
+        "name": "{{$node['Extract Form Data'].json.clientName}} - {{$node['Extract Form Data'].json.eventType}} Photography",
+        "additionalFields": {}
+      },
+      "id": "6bb8c924-7012-400d-9cfb-2239bf689af9",
+      "name": "Create ClickUp Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        440,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "minutes"
+      },
+      "id": "d5b42cf4-6068-4b62-8632-6b873b9704d2",
+      "name": "Wait 30 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        660,
+        -320
+      ],
+      "webhookId": "69ec0b26-3b92-4a8d-8cc1-87c661c85979"
+    },
+    {
+      "parameters": {
+        "subject": "Let's schedule your photography consultation, {{$node['Extract Form Data'].json.clientName}}",
+        "message": "Hi {{$node['Extract Form Data'].json.clientName}},\n\nI'd love to learn more about your {{$node['Extract Form Data'].json.eventType}} and discuss how we can bring your vision to life.\n\nPlease select a convenient time for a 30-minute discovery call: https://calendly.com/your-calendly-link\n\nLooking forward to speaking with you!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "f5fb7ac2-f65f-4b25-82bf-d09a2ddb1f13",
+      "name": "Send Calendly Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -420
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "status": "scheduling call"
+        }
+      },
+      "id": "224ad4fe-dd3e-4551-b5bd-58238694b918",
+      "name": "Update Status - Scheduling",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "99d6994d-30dc-4584-80fc-5e6363ab31cc",
+        "options": {}
+      },
+      "id": "2a1c8f0e-039e-41a6-a696-dab49e9068dc",
+      "name": "Calendly Meeting Completed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        40
+      ],
+      "webhookId": "99d6994d-30dc-4584-80fc-5e6363ab31cc"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "meetingId",
+              "value": "={{$json.payload.uuid}}"
+            },
+            {
+              "name": "attendeeEmail",
+              "value": "={{$json.payload.invitee.email}}"
+            },
+            {
+              "name": "meetingTime",
+              "value": "={{$json.payload.event.start_time}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1376feb4-2064-448b-8dda-6612b90651eb",
+      "name": "Extract Meeting Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "space": "SPACE_ID",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "id": "a385e428-5c63-4c79-aaaf-8b504c8d5b83",
+      "name": "Find ClickUp Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -20,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "content": "Discovery call completed on {{$node['Extract Meeting Data'].json.meetingTime}}\n\nCall Summary:\n- Event requirements discussed\n- Budget confirmed\n- Client expectations noted\n- Proposal to be generated\n\nOriginal inquiry:\n{{$node['Find ClickUp Task'].json[0].description}}",
+          "status": "call completed"
+        }
+      },
+      "id": "d06f472d-8ba4-4ce1-9852-d64281f5c457",
+      "name": "Update Status - Call Completed",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        200,
+        40
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "05827cdd-7783-4efc-86f4-72f4c0cd9b19",
+      "name": "Wait 1 Hour",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        420,
+        40
+      ],
+      "webhookId": "11101343-4c4c-49a5-b21e-d2d02625234f"
+    },
+    {
+      "parameters": {
+        "subject": "Your custom photography proposal - {{$node['Find ClickUp Task'].json[0].custom_fields.find(field => field.id === 'EVENT_TYPE_FIELD_ID')}}",
+        "message": "Hi {{$node['Find ClickUp Task'].json[0].name.split(' - ')[0]}},\n\nIt was wonderful speaking with you about your upcoming event!\n\nPlease find attached your customized photography proposal. This proposal includes:\n\n• Complete event coverage\n• Professional editing\n• Online gallery delivery\n• Usage rights\n\nThe proposal is valid for 14 days. Please reply to this email if you'd like to move forward or have any questions!\n\nI'm excited to potentially work with you and capture these special moments.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "da2ee676-e13b-4146-871e-40c83fd46760",
+      "name": "Send Proposal Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -60
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "dueDate": "={{DateTime.now().plus({days: 14}).toISO()}}",
+          "status": "proposal sent"
+        }
+      },
+      "id": "b2865e79-cae3-4a90-8d37-14ffe24792b6",
+      "name": "Update Status - Proposal Sent",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        640,
+        140
+      ],
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "5ERftdH7Sk5TJC02",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "id": "77acde09-f2c0-4fc6-9d1f-4b986701fc0d",
+      "name": "Wait 3 Days - Follow Up",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        860,
+        40
+      ],
+      "webhookId": "14072765-81ab-4529-ad28-31cdc0915288"
+    },
+    {
+      "parameters": {
+        "subject": "Following up on your photography proposal",
+        "message": "Hi {{$node['Find ClickUp Task'].json[0].name.split(' - ')[0]}},\n\nI wanted to follow up on the proposal I sent for your upcoming event.\n\nDo you have any questions or would you like to discuss any adjustments?\n\nI'm here to help make this perfect for your special day!\n\nFeel free to reply to this email or give me a call.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "6ff0618d-4c49-47ec-ae25-07d5dada446f",
+      "name": "Send Follow-up Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1080,
+        40
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "7e72d965-6956-47ef-9df1-65edfc9b3e1c",
+        "options": {}
+      },
+      "id": "e7f1c152-48ac-4958-bdfd-e465911feccf",
+      "name": "Proposal Accepted",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        320
+      ],
+      "webhookId": "7e72d965-6956-47ef-9df1-65edfc9b3e1c"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "clientEmail",
+              "value": "={{$json.email}}"
+            },
+            {
+              "name": "taskId",
+              "value": "={{$json.task_id}}"
+            },
+            {
+              "name": "proposalAmount",
+              "value": "={{$json.amount}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ca76854f-42aa-4c60-a6d6-58eaff41be2c",
+      "name": "Extract Acceptance Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        120,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "status": "proposal accepted"
+        }
+      },
+      "id": "caae0e52-3fa8-4009-917e-818d8ab54ebc",
+      "name": "Update Status - Accepted",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        340,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "paymentLink"
+      },
+      "id": "e8376807-3e42-4704-a8f6-e3bb44ba8737",
+      "name": "Create Stripe Payment Link",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [
+        560,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Next steps - Securing your photography date",
+        "message": "Hi there,\n\nFantastic! I'm thrilled you've chosen us for your upcoming event.\n\nTo secure your date, please complete the deposit payment (50% of total): {{$node['Create Stripe Payment Link'].json.url}}\n\nOnce payment is received, I'll send your complete onboarding package including:\n• Dedicated Google Drive folder\n• Slack channel for communication\n• Pre-shoot questionnaire\n• Contract for signing\n\nThank you for trusting us with your special moments!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "868c84d3-418c-4f39-bc0d-1761cce376e8",
+      "name": "Send Payment Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        800,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "6e82d8d1-9d10-40e0-b1b3-dc98804da57d",
+        "options": {}
+      },
+      "id": "56aa2477-bb58-47e6-b8bd-ba1b2ba73dcc",
+      "name": "Stripe Payment Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        20,
+        660
+      ],
+      "webhookId": "6e82d8d1-9d10-40e0-b1b3-dc98804da57d"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "paymentIntentId",
+              "value": "={{$json.data.object.payment_intent}}"
+            },
+            {
+              "name": "customerEmail",
+              "value": "={{$json.data.object.customer_details.email}}"
+            },
+            {
+              "name": "amountPaid",
+              "value": "={{$json.data.object.amount_total / 100}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a875230e-de51-4690-b37e-6fd818aad13e",
+      "name": "Extract Payment Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        240,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "space": "SPACE_ID",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "id": "d83da9fe-ab79-414b-921b-4d1a7b64fe11",
+      "name": "Find Task by Email",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        460,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{$node['Find Task by Email'].json[0].name}} - {{DateTime.now().toFormat('yyyy-MM-dd')}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "95b817fd-2932-4975-ba5f-d14c9d75aa0a",
+      "name": "Create Google Drive Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        720,
+        580
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7cpKOsLrsioEzfBv",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "01_Planning",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "e0dcb4f4-17d8-4d5e-9021-2e6c9ac42520",
+      "name": "Create Planning Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1060,
+        300
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7cpKOsLrsioEzfBv",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "02_Inspiration",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "071d0cb5-7772-46dd-aecb-75399293dbba",
+      "name": "Create Inspiration Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1060,
+        460
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7cpKOsLrsioEzfBv",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "03_Raw_Photos",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "96e71ea2-019b-4870-906f-09ebfd1d4753",
+      "name": "Create Raw Photos Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1060,
+        640
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7cpKOsLrsioEzfBv",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "04_Edited_Photos",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "777a8ad9-41c2-408e-b6cb-8d86fea39639",
+      "name": "Create Edited Photos Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1060,
+        800
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7cpKOsLrsioEzfBv",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "05_Final_Delivery",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "570697ef-b4db-458d-ba9b-38b5c8d3d7af",
+      "name": "Create Final Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1060,
+        980
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7cpKOsLrsioEzfBv",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "06_Contracts",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "e9a38af5-0aa0-459f-ac39-9666b1ea4343",
+      "name": "Create Contracts Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1060,
+        1140
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7cpKOsLrsioEzfBv",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "channel",
+        "channelId": "={{$node['Find Task by Email'].json[0].name.toLowerCase().replace(/[^a-z0-9]/g, '-')}}",
+        "additionalFields": {}
+      },
+      "id": "174a33a5-5717-4d7e-bc9e-62f2f709c816",
+      "name": "Create Slack Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        1340
+      ],
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Oi9yyhcWDx7dFiT4",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "status": "deposit received"
+        }
+      },
+      "id": "fb1bd38f-22fa-4702-bf9a-65327d8bf7e8",
+      "name": "Update Status - Deposit Received",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        660
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Welcome to the team! Your photography onboarding kit",
+        "message": "Hi {{$node['Find Task by Email'].json[0].name.split(' - ')[0]}},\n\nWelcome aboard! Payment received successfully.\n\nHere's everything you need to get started:\n\n📁 Google Drive folder: {{$node['Create Google Drive Folder'].json.webViewLink}}\n💬 Slack channel: #{{$node['Create Slack Channel'].json.channel.name}}\n📋 Pre-shoot questionnaire: [QUESTIONNAIRE_LINK]\n\nYour event is officially in our calendar for {{$node['Find Task by Email'].json[0].custom_fields.find(field => field.id === 'EVENT_DATE_FIELD_ID').value}}!\n\nI'll be in touch soon with next steps and timeline.\n\nThank you for choosing us!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "4769191a-7c7d-4fd5-a2d5-601aa7e0f7bf",
+      "name": "Send Onboarding Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        560
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "b1a20b84-77fd-4c91-9d70-4b3ec4cf5bd3",
+      "name": "Daily Reminder Check",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -1160,
+        -360
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "team": "9016422610",
+        "space": "90164370074",
+        "filters": {}
+      },
+      "id": "e053f26b-7362-43d4-8f89-2f58dc215325",
+      "name": "Get Upcoming Events",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -940,
+        -360
+      ],
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "5ERftdH7Sk5TJC02",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "dateTime": [
+            {
+              "value1": "={{DateTime.fromISO($json.custom_fields.find(field => field.id === 'EVENT_DATE_FIELD_ID').value).diff(DateTime.now(), 'days').days}}",
+              "operation": "equal",
+              "value2": 3
+            }
+          ]
+        }
+      },
+      "id": "c82de658-bfbe-44ea-97bf-e3863138126f",
+      "name": "Check 3 Days Before",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -460
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "dateTime": [
+            {
+              "value1": "={{DateTime.fromISO($json.custom_fields.find(field => field.id === 'EVENT_DATE_FIELD_ID').value).diff(DateTime.now(), 'days').days}}",
+              "operation": "equal",
+              "value2": 1
+            }
+          ]
+        }
+      },
+      "id": "a910fd07-8328-4d44-8de8-73774846eb95",
+      "name": "Check 1 Day Before",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -260
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Your photography session is in 3 days!",
+        "message": "Hi {{$json.name.split(' - ')[0]}},\n\nJust a friendly reminder that your {{$json.name.split(' - ')[1].replace(' Photography', '')}} photography is scheduled for {{DateTime.fromISO($json.custom_fields.find(field => field.id === 'EVENT_DATE_FIELD_ID').value).toFormat('EEEE, MMMM dd, yyyy')}}.\n\nPlease confirm if anything has changed with timing or location by replying to this email.\n\nLooking forward to capturing your special moments!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "5a281e6a-4643-4063-9e11-73588cd31a68",
+      "name": "Send 3-Day Reminder",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        -460
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "subject": "Tomorrow's the big day! Final confirmation",
+        "message": "Hi {{$json.name.split(' - ')[0]}},\n\nYour photography session is tomorrow!\n\nFinal details confirmed:\n📅 Date: {{DateTime.fromISO($json.custom_fields.find(field => field.id === 'EVENT_DATE_FIELD_ID').value).toFormat('EEEE, MMMM dd, yyyy')}}\n⏰ Time: [TIME_TO_BE_CONFIRMED]\n📍 Location: [LOCATION_TO_BE_CONFIRMED]\n\nI'll arrive 15 minutes early to set up. Can't wait to capture your special moments!\n\nPlease reply if there are any last-minute changes.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "071c3a16-266a-42bc-bac2-62b2cc5bbe1d",
+      "name": "Send 1-Day Reminder",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        -260
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "status": "event approaching"
+        }
+      },
+      "id": "e03819d8-fa23-4605-9d3d-7a8aea4bbb59",
+      "name": "Update Status - Approaching",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -320
+      ],
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "5ERftdH7Sk5TJC02",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "57f43db9-3871-45e6-b82f-bad7c07ca7ba",
+        "options": {}
+      },
+      "id": "d6c6f656-0df6-46e3-b375-42abf0d35ae7",
+      "name": "Event Completed Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1600,
+        40
+      ],
+      "webhookId": "57f43db9-3871-45e6-b82f-bad7c07ca7ba"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "taskId",
+              "value": "={{$json.task_id}}"
+            },
+            {
+              "name": "eventDate",
+              "value": "={{$json.event_date}}"
+            },
+            {
+              "name": "clientEmail",
+              "value": "={{$json.client_email}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f8d67101-64b1-4642-97b8-5460a5117f6b",
+      "name": "Extract Completion Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1380,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "get"
+      },
+      "id": "aeb3ad01-fdbf-4ea5-a6b8-1293b4d80573",
+      "name": "Get Completed Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -1160,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Thank you for an amazing {{$node['Get Completed Task'].json.name.split(' - ')[1].replace(' Photography', '')}}!",
+        "message": "Hi {{$node['Get Completed Task'].json.name.split(' - ')[0]}},\n\nWhat an incredible event! Thank you for allowing us to capture your special day.\n\nYour photos are now in processing. Here's what to expect:\n\n📸 Sneak peek (5-10 photos): 2-3 days\n📁 Full gallery: 2-3 weeks\n\nI'll keep you updated on the progress through our Slack channel: {{$node['Get Completed Task'].json.custom_fields.find(field => field.id === 'SLACK_CHANNEL_FIELD_ID').value}}\n\nYou can also check your Google Drive folder anytime: {{$node['Get Completed Task'].json.custom_fields.find(field => field.id === 'GDRIVE_FOLDER_FIELD_ID').value}}\n\nThank you again for trusting us with your memories!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "820f5583-f68e-476a-8061-b9f439ae8db9",
+      "name": "Send Thank You Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        -940,
+        40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "content": "{{$node['Get Completed Task'].json.description}}\n\n--- EVENT COMPLETED ---\nDate: {{$node['Extract Completion Data'].json.eventDate}}\nPhotos in processing\nClient notified of timeline",
+          "status": "event completed"
+        }
+      },
+      "id": "3938b4fa-bdd2-42f4-9b22-3861ce2a9641",
+      "name": "Update Status - Completed",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        40
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ff32ddae-eed1-4646-9c68-96e9d9a5af05",
+      "name": "Check Final Folder (Every 2 Hours)",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -1540,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "space": "SPACE_ID",
+        "filters": {}
+      },
+      "id": "bf6faa97-9b35-4f1b-bde3-61757c4efb58",
+      "name": "Get Completed Tasks",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -1320,
+        380
+      ],
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "5ERftdH7Sk5TJC02",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "list"
+      },
+      "id": "d0de4019-11a3-4127-a366-a5c558207e77",
+      "name": "Check Final Folder Contents",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1100,
+        380
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7cpKOsLrsioEzfBv",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.files ? $json.files.length : 0}}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "id": "ed7896dc-5474-4b60-b607-9ba5231ebf25",
+      "name": "Check If Files Exist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "paymentLink"
+      },
+      "id": "5f55af67-70fa-4894-b956-cdab3668cc74",
+      "name": "Create Final Payment Link",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Your complete photography gallery is ready!",
+        "message": "Hi {{$node['Get Completed Tasks'].json.name.split(' - ')[0]}},\n\nYour complete photography gallery is now ready! 🎉\n\n📁 Access your photos: {{$node['Get Completed Tasks'].json.custom_fields.find(field => field.id === 'GDRIVE_FOLDER_FIELD_ID').value}}/05_Final_Delivery\n\nYour gallery includes:\n• All edited high-resolution photos\n• Print-ready files\n• Web-optimized versions\n• Usage rights documentation\n\nTo complete your photography package, please process the final payment (remaining 50%): {{$node['Create Final Payment Link'].json.url}}\n\nThank you for choosing us to capture your memories! If you're happy with our service, we'd love a review.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "924098f0-448a-4d70-937b-da627e94f772",
+      "name": "Send Final Gallery Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        280
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "content": "{{$node['Get Completed Tasks'].json.description}}\n\n--- FINAL GALLERY DELIVERED ---\nDate: {{DateTime.now().toISO()}}\nFinal payment link sent\nAwaiting final payment for project completion",
+          "status": "final delivery"
+        }
+      },
+      "id": "dd8cfb8e-1893-4649-9a65-c67972d87e0c",
+      "name": "Update Status - Final Delivery",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        480
+      ],
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "5ERftdH7Sk5TJC02",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a54fbe18-db5e-409f-90e0-49825d9c1732",
+        "options": {}
+      },
+      "id": "fef6217f-65ae-4c14-99f0-26dbe610699e",
+      "name": "Final Payment Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -1560,
+        700
+      ],
+      "webhookId": "a54fbe18-db5e-409f-90e0-49825d9c1732"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "finalPaymentId",
+              "value": "={{$json.data.object.payment_intent}}"
+            },
+            {
+              "name": "customerEmail",
+              "value": "={{$json.data.object.customer_details.email}}"
+            },
+            {
+              "name": "finalAmount",
+              "value": "={{$json.data.object.amount_total / 100}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a322b711-e8da-4e04-963c-180fb9532629",
+      "name": "Extract Final Payment Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -1340,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "space": "SPACE_ID",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "id": "e501289a-557f-4bda-a480-3c8ac41227bb",
+      "name": "Find Final Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -1120,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Project complete! Thank you for an amazing experience",
+        "message": "Hi {{$node['Find Final Task'].json[0].name.split(' - ')[0]}},\n\nThank you! Your final payment has been received and your photography project is now officially complete. 🎉\n\n✅ Project Summary:\n• Event: {{$node['Find Final Task'].json[0].name.split(' - ')[1].replace(' Photography', '')}}\n• Total Investment: ${{($node['Extract Final Payment Data'].json.finalAmount * 2)}}\n• Photos Delivered: All high-resolution edited images\n• Gallery Access: Permanent (Google Drive)\n\nIt was an absolute pleasure working with you and capturing your special moments. Your photos will remain accessible in your Google Drive folder forever.\n\nIf you're happy with our service, we'd be grateful for a review on Google or social media. And please keep us in mind for future events!\n\nWishing you all the best,\nYour Photography Team\n\nP.S. Don't forget to back up your photos to multiple locations for safekeeping! 📸",
+        "additionalFields": {}
+      },
+      "id": "4b4c604d-879e-4ff5-8688-f909303cc3ef",
+      "name": "Send Project Completion Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        700
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "content": "{{$node['Find Final Task'].json[0].description}}\n\n--- PROJECT COMPLETED ---\nFinal payment received: ${{$node['Extract Final Payment Data'].json.finalAmount}}\nTotal project value: ${{($node['Extract Final Payment Data'].json.finalAmount * 2)}}\nCompletion date: {{DateTime.now().toFormat('yyyy-MM-dd')}}\nClient satisfaction: Awaiting feedback",
+          "status": "project complete"
+        }
+      },
+      "id": "4ea3c095-a9a6-4e4e-97de-924e62c79e76",
+      "name": "Update Status - Project Complete",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        -680,
+        700
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "id": "84895dff-0d6e-4892-b4e1-6fb22919b75c",
+      "name": "Wait 1 Week for Review Request",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        -460,
+        700
+      ],
+      "webhookId": "dd06e6b7-8e90-4020-9dcf-5ed768389aa6"
+    },
+    {
+      "parameters": {
+        "subject": "We'd love your feedback! ⭐",
+        "message": "Hi {{$node['Find Final Task'].json[0].name.split(' - ')[0]}},\n\nI hope you're still enjoying your beautiful photos from your {{$node['Find Final Task'].json[0].name.split(' - ')[1].replace(' Photography', '')}}!\n\nIf you have a moment, we'd be incredibly grateful if you could share your experience with others by leaving us a review:\n\n⭐ Google Review: [GOOGLE_REVIEW_LINK]\n📷 Instagram: @yourphotographyhandle\n👍 Facebook: [FACEBOOK_PAGE_LINK]\n\nYour feedback helps other couples find us and means the world to our small business.\n\nThank you again for trusting us with your special moments!\n\nWith gratitude,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "59221a35-606b-40eb-abd3-8891031d98cc",
+      "name": "Send Review Request",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        700
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Typeform Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Form Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Form Data": {
+      "main": [
+        [
+          {
+            "node": "Send Greeting Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create ClickUp Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Greeting Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ClickUp Task": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Send Calendly Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Scheduling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendly Meeting Completed": {
+      "main": [
+        [
+          {
+            "node": "Extract Meeting Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Meeting Data": {
+      "main": [
+        [
+          {
+            "node": "Find ClickUp Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find ClickUp Task": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Call Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status - Call Completed": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Hour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Hour": {
+      "main": [
+        [
+          {
+            "node": "Send Proposal Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Proposal Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Proposal Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Days - Follow Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Days - Follow Up": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Proposal Accepted": {
+      "main": [
+        [
+          {
+            "node": "Extract Acceptance Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Acceptance Data": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Accepted",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Stripe Payment Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Stripe Payment Link": {
+      "main": [
+        [
+          {
+            "node": "Send Payment Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Payment Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Payment Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Payment Data": {
+      "main": [
+        [
+          {
+            "node": "Find Task by Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Task by Email": {
+      "main": [
+        [
+          {
+            "node": "Create Google Drive Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Slack Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Google Drive Folder": {
+      "main": [
+        [
+          {
+            "node": "Create Planning Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Inspiration Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Raw Photos Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Edited Photos Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Final Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Contracts Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Contracts Folder": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Deposit Received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Slack Channel": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Deposit Received",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status - Deposit Received": {
+      "main": [
+        [
+          {
+            "node": "Send Onboarding Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Reminder Check": {
+      "main": [
+        [
+          {
+            "node": "Get Upcoming Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Upcoming Events": {
+      "main": [
+        [
+          {
+            "node": "Check 3 Days Before",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check 1 Day Before",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check 3 Days Before": {
+      "main": [
+        [
+          {
+            "node": "Send 3-Day Reminder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Approaching",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check 1 Day Before": {
+      "main": [
+        [
+          {
+            "node": "Send 1-Day Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Completed Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Completion Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Completion Data": {
+      "main": [
+        [
+          {
+            "node": "Get Completed Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Completed Task": {
+      "main": [
+        [
+          {
+            "node": "Send Thank You Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Final Folder (Every 2 Hours)": {
+      "main": [
+        [
+          {
+            "node": "Get Completed Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Completed Tasks": {
+      "main": [
+        [
+          {
+            "node": "Check Final Folder Contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Final Folder Contents": {
+      "main": [
+        [
+          {
+            "node": "Check If Files Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Files Exist": {
+      "main": [
+        [
+          {
+            "node": "Create Final Payment Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Final Payment Link": {
+      "main": [
+        [
+          {
+            "node": "Send Final Gallery Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Final Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Payment Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Final Payment Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Final Payment Data": {
+      "main": [
+        [
+          {
+            "node": "Find Final Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Final Task": {
+      "main": [
+        [
+          {
+            "node": "Send Project Completion Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Project Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status - Project Complete": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Week for Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Week for Review Request": {
+      "main": [
+        [
+          {
+            "node": "Send Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "30659f27-ea8c-43d6-b858-881e311b516c",
+  "meta": {
+    "instanceId": "4275106c8fd02c2533edab3f7741b7db420af0691c825fa5d46bbabd00ca51b7"
+  },
+  "id": "wenFDy5r6tpADSQh",
+  "tags": [
+    {
+      "createdAt": "2025-06-21T04:43:25.850Z",
+      "updatedAt": "2025-06-21T04:43:25.850Z",
+      "id": "AzmQYH3UHtQQ4KLW",
+      "name": "Sales Funnel"
+    },
+    {
+      "createdAt": "2025-06-21T04:43:41.023Z",
+      "updatedAt": "2025-06-21T04:43:41.023Z",
+      "id": "SdEyU151wZVOsuZr",
+      "name": "Photography Agency"
+    }
+  ]
+}
