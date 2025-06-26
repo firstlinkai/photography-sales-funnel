@@ -1,0 +1,269 @@
+{
+  "name": "PF2- Discovery Call Scheduling & Proposal Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "9deb3f3f-4e1f-4728-8c9a-ee314c8c32a0",
+        "options": {}
+      },
+      "id": "e9ddc8ec-8754-4ceb-990f-0201100e93ba",
+      "name": "Calendly Meeting Completed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        60,
+        60
+      ],
+      "webhookId": "9deb3f3f-4e1f-4728-8c9a-ee314c8c32a0"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "meetingId",
+              "value": "={{$json.payload.uuid}}"
+            },
+            {
+              "name": "attendeeEmail",
+              "value": "={{$json.payload.invitee.email}}"
+            },
+            {
+              "name": "meetingTime",
+              "value": "={{$json.payload.event.start_time}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d1d45a89-c1a7-4802-992f-cc45539e1272",
+      "name": "Extract Meeting Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        280,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "space": "SPACE_ID",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "id": "fe5f7123-a5cf-4b0b-8fca-73ab94d5e184",
+      "name": "Find ClickUp Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        500,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "content": "Discovery call completed on {{$node['Extract Meeting Data'].json.meetingTime}}\n\nCall Summary:\n- Event requirements discussed\n- Budget confirmed\n- Client expectations noted\n- Proposal to be generated\n\nOriginal inquiry:\n{{$node['Find ClickUp Task'].json[0].description}}",
+          "status": "call completed"
+        }
+      },
+      "id": "6bc815db-20de-4337-bab5-0afc1ae52e3b",
+      "name": "Update Status - Call Completed",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        720,
+        60
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "4bbe246b-402f-44ea-995d-ca028af9db34",
+      "name": "Wait 1 Hour",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        940,
+        60
+      ],
+      "webhookId": "3fa56e93-3180-4143-8dd8-21004824884a"
+    },
+    {
+      "parameters": {
+        "subject": "Your custom photography proposal - {{$node['Find ClickUp Task'].json[0].custom_fields.find(field => field.id === 'EVENT_TYPE_FIELD_ID')}}",
+        "message": "Hi {{$node['Find ClickUp Task'].json[0].name.split(' - ')[0]}},\n\nIt was wonderful speaking with you about your upcoming event!\n\nPlease find attached your customized photography proposal. This proposal includes:\n\n• Complete event coverage\n• Professional editing\n• Online gallery delivery\n• Usage rights\n\nThe proposal is valid for 14 days. Please reply to this email if you'd like to move forward or have any questions!\n\nI'm excited to potentially work with you and capture these special moments.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "85b6eb5d-a257-4d8b-a221-39269bd4c45f",
+      "name": "Send Proposal Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "dueDate": "={{DateTime.now().plus({days: 14}).toISO()}}",
+          "status": "proposal sent"
+        }
+      },
+      "id": "9f6bb9d8-5c8d-4909-a634-d70d8858147e",
+      "name": "Update Status - Proposal Sent",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "days"
+      },
+      "id": "207a270a-da9a-4a93-9520-1c186eab9fe7",
+      "name": "Wait 3 Days - Follow Up",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        60
+      ],
+      "webhookId": "b19c3851-1fda-4c88-91c5-80841ecd537a"
+    },
+    {
+      "parameters": {
+        "subject": "Following up on your photography proposal",
+        "message": "Hi {{$node['Find ClickUp Task'].json[0].name.split(' - ')[0]}},\n\nI wanted to follow up on the proposal I sent for your upcoming event.\n\nDo you have any questions or would you like to discuss any adjustments?\n\nI'm here to help make this perfect for your special day!\n\nFeel free to reply to this email or give me a call.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "2fc5156b-a5aa-4e49-ae25-3a274383ef16",
+      "name": "Send Follow-up Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        60
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Calendly Meeting Completed": {
+      "main": [
+        [
+          {
+            "node": "Extract Meeting Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Meeting Data": {
+      "main": [
+        [
+          {
+            "node": "Find ClickUp Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find ClickUp Task": {
+      "main": [
+        [
+          {
+            "node": "Update Status - Call Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status - Call Completed": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Hour",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Hour": {
+      "main": [
+        [
+          {
+            "node": "Send Proposal Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Proposal Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Proposal Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Days - Follow Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Days - Follow Up": {
+      "main": [
+        [
+          {
+            "node": "Send Follow-up Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dec04b1d-535a-48fa-a642-a03c63e57a24",
+  "meta": {
+    "instanceId": "4275106c8fd02c2533edab3f7741b7db420af0691c825fa5d46bbabd00ca51b7"
+  },
+  "id": "tTYppI0O5KgZcWg4",
+  "tags": [
+    {
+      "createdAt": "2025-06-21T04:43:25.850Z",
+      "updatedAt": "2025-06-21T04:43:25.850Z",
+      "id": "AzmQYH3UHtQQ4KLW",
+      "name": "Sales Funnel"
+    },
+    {
+      "createdAt": "2025-06-21T04:43:41.023Z",
+      "updatedAt": "2025-06-21T04:43:41.023Z",
+      "id": "SdEyU151wZVOsuZr",
+      "name": "Photography Agency"
+    }
+  ]
+}

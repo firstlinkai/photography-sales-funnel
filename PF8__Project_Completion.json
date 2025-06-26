@@ -1,0 +1,217 @@
+{
+  "name": "PF8- Project Completion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "eff5b1e7-de24-43be-8916-b977a2523c17",
+        "options": {}
+      },
+      "id": "cba33cf9-dd15-499c-bb6e-e21468b30d1c",
+      "name": "Final Payment Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        60,
+        2460
+      ],
+      "webhookId": "eff5b1e7-de24-43be-8916-b977a2523c17"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "finalPaymentId",
+              "value": "={{$json.data.object.payment_intent}}"
+            },
+            {
+              "name": "customerEmail",
+              "value": "={{$json.data.object.customer_details.email}}"
+            },
+            {
+              "name": "finalAmount",
+              "value": "={{$json.data.object.amount_total / 100}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3b19334f-31ff-455e-903c-551a54bf1626",
+      "name": "Extract Final Payment Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        280,
+        2460
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "space": "SPACE_ID",
+        "returnAll": false,
+        "limit": 1,
+        "filters": {}
+      },
+      "id": "8b78c346-5fd5-4c18-8dfb-d5cc25f52e82",
+      "name": "Find Final Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        500,
+        2460
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Project complete! Thank you for an amazing experience",
+        "message": "Hi {{$node['Find Final Task'].json[0].name.split(' - ')[0]}},\n\nThank you! Your final payment has been received and your photography project is now officially complete. 🎉\n\n✅ Project Summary:\n• Event: {{$node['Find Final Task'].json[0].name.split(' - ')[1].replace(' Photography', '')}}\n• Total Investment: ${{($node['Extract Final Payment Data'].json.finalAmount * 2)}}\n• Photos Delivered: All high-resolution edited images\n• Gallery Access: Permanent (Google Drive)\n\nIt was an absolute pleasure working with you and capturing your special moments. Your photos will remain accessible in your Google Drive folder forever.\n\nIf you're happy with our service, we'd be grateful for a review on Google or social media. And please keep us in mind for future events!\n\nWishing you all the best,\nYour Photography Team\n\nP.S. Don't forget to back up your photos to multiple locations for safekeeping! 📸",
+        "additionalFields": {}
+      },
+      "id": "adce471f-5862-4c37-a368-01958de5d418",
+      "name": "Send Project Completion Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        720,
+        2460
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "content": "{{$node['Find Final Task'].json[0].description}}\n\n--- PROJECT COMPLETED ---\nFinal payment received: ${{$node['Extract Final Payment Data'].json.finalAmount}}\nTotal project value: ${{($node['Extract Final Payment Data'].json.finalAmount * 2)}}\nCompletion date: {{DateTime.now().toFormat('yyyy-MM-dd')}}\nClient satisfaction: Awaiting feedback",
+          "status": "project complete"
+        }
+      },
+      "id": "1f2fb731-bdbc-4481-8a52-581f2bb60043",
+      "name": "Update Status - Project Complete",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        940,
+        2460
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 7,
+        "unit": "days"
+      },
+      "id": "76276a98-92d5-49dd-8568-ba7dd37c4a18",
+      "name": "Wait 1 Week for Review Request",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        2460
+      ],
+      "webhookId": "8203bc95-c170-4eba-9fa9-75ffb7d67e38"
+    },
+    {
+      "parameters": {
+        "subject": "We'd love your feedback! ⭐",
+        "message": "Hi {{$node['Find Final Task'].json[0].name.split(' - ')[0]}},\n\nI hope you're still enjoying your beautiful photos from your {{$node['Find Final Task'].json[0].name.split(' - ')[1].replace(' Photography', '')}}!\n\nIf you have a moment, we'd be incredibly grateful if you could share your experience with others by leaving us a review:\n\n⭐ Google Review: [GOOGLE_REVIEW_LINK]\n📷 Instagram: @yourphotographyhandle\n👍 Facebook: [FACEBOOK_PAGE_LINK]\n\nYour feedback helps other couples find us and means the world to our small business.\n\nThank you again for trusting us with your special moments!\n\nWith gratitude,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "6c0e34ae-d91e-4a3f-9c22-a31656fd2a3d",
+      "name": "Send Review Request",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        2460
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Final Payment Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Final Payment Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Final Payment Data": {
+      "main": [
+        [
+          {
+            "node": "Find Final Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Final Task": {
+      "main": [
+        [
+          {
+            "node": "Send Project Completion Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Project Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status - Project Complete": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Week for Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Week for Review Request": {
+      "main": [
+        [
+          {
+            "node": "Send Review Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d695aacb-0b51-41e5-aa6f-c22d02cbeea2",
+  "meta": {
+    "instanceId": "4275106c8fd02c2533edab3f7741b7db420af0691c825fa5d46bbabd00ca51b7"
+  },
+  "id": "gSNuystqXnKqlzHi",
+  "tags": [
+    {
+      "createdAt": "2025-06-21T04:43:25.850Z",
+      "updatedAt": "2025-06-21T04:43:25.850Z",
+      "id": "AzmQYH3UHtQQ4KLW",
+      "name": "Sales Funnel"
+    },
+    {
+      "createdAt": "2025-06-21T04:43:41.023Z",
+      "updatedAt": "2025-06-21T04:43:41.023Z",
+      "id": "SdEyU151wZVOsuZr",
+      "name": "Photography Agency"
+    }
+  ]
+}

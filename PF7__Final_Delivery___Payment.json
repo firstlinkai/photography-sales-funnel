@@ -1,0 +1,199 @@
+{
+  "name": "PF7- Final Delivery & Payment",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "288b6839-c9e8-4515-ab69-d11f77221f3f",
+      "name": "Check Final Folder (Every 2 Hours)",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        60,
+        2060
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "space": "SPACE_ID",
+        "filters": {}
+      },
+      "id": "43607191-ad7d-4519-b74d-4cc8bae958bb",
+      "name": "Get Completed Tasks",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        280,
+        2060
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "resource": "folder",
+        "operation": "list"
+      },
+      "id": "ff42af9a-45b2-4a69-9061-f6d04bab106a",
+      "name": "Check Final Folder Contents",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        500,
+        2060
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$json.files ? $json.files.length : 0}}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "id": "bb93cd27-c8d7-4ab8-b565-1a803ed1de5f",
+      "name": "Check If Files Exist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        720,
+        2060
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "paymentLink"
+      },
+      "id": "c8d1a219-b8b6-4390-a077-05a9667d17a3",
+      "name": "Create Final Payment Link",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [
+        940,
+        1960
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Your complete photography gallery is ready!",
+        "message": "Hi {{$node['Get Completed Tasks'].json.name.split(' - ')[0]}},\n\nYour complete photography gallery is now ready! 🎉\n\n📁 Access your photos: {{$node['Get Completed Tasks'].json.custom_fields.find(field => field.id === 'GDRIVE_FOLDER_FIELD_ID').value}}/05_Final_Delivery\n\nYour gallery includes:\n• All edited high-resolution photos\n• Print-ready files\n• Web-optimized versions\n• Usage rights documentation\n\nTo complete your photography package, please process the final payment (remaining 50%): {{$node['Create Final Payment Link'].json.url}}\n\nThank you for choosing us to capture your memories! If you're happy with our service, we'd love a review.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "00b9cdde-4518-44ab-bece-5df15d194f9c",
+      "name": "Send Final Gallery Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        1960
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "updateFields": {
+          "content": "{{$node['Get Completed Tasks'].json.description}}\n\n--- FINAL GALLERY DELIVERED ---\nDate: {{DateTime.now().toISO()}}\nFinal payment link sent\nAwaiting final payment for project completion",
+          "status": "final delivery"
+        }
+      },
+      "id": "48db5d1a-8e55-4c57-b651-92bf1041b62a",
+      "name": "Update Status - Final Delivery",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        2160
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Check Final Folder (Every 2 Hours)": {
+      "main": [
+        [
+          {
+            "node": "Get Completed Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Completed Tasks": {
+      "main": [
+        [
+          {
+            "node": "Check Final Folder Contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Final Folder Contents": {
+      "main": [
+        [
+          {
+            "node": "Check If Files Exist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Files Exist": {
+      "main": [
+        [
+          {
+            "node": "Create Final Payment Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Final Payment Link": {
+      "main": [
+        [
+          {
+            "node": "Send Final Gallery Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Final Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "07e26e7e-8e9e-4b88-afdc-4080c2a88431",
+  "meta": {
+    "instanceId": "4275106c8fd02c2533edab3f7741b7db420af0691c825fa5d46bbabd00ca51b7"
+  },
+  "id": "qSANtLIh1VeLSgYx",
+  "tags": [
+    {
+      "createdAt": "2025-06-21T04:43:25.850Z",
+      "updatedAt": "2025-06-21T04:43:25.850Z",
+      "id": "AzmQYH3UHtQQ4KLW",
+      "name": "Sales Funnel"
+    },
+    {
+      "createdAt": "2025-06-21T04:43:41.023Z",
+      "updatedAt": "2025-06-21T04:43:41.023Z",
+      "id": "SdEyU151wZVOsuZr",
+      "name": "Photography Agency"
+    }
+  ]
+}

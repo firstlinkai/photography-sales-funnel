@@ -1,0 +1,437 @@
+{
+  "name": "PF1- Lead Capture and Initial Response",
+  "nodes": [
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "Name",
+              "value": "={{ $json.Name }}"
+            },
+            {
+              "name": "Email",
+              "value": "={{ $json.Email }}"
+            },
+            {
+              "name": "Phone",
+              "value": "={{ $json.Phone }}"
+            },
+            {
+              "name": "EventType",
+              "value": "={{ $json.EventType }}"
+            },
+            {
+              "name": "EventDate",
+              "value": "={{ $json.EventDate }}"
+            },
+            {
+              "name": "Budget",
+              "value": "={{ $json.Budget }}"
+            },
+            {
+              "name": "Message",
+              "value": "={{ $json.Message }}"
+            },
+            {
+              "name": "Website",
+              "value": "={{ $json.Website }}"
+            },
+            {
+              "name": "Address",
+              "value": "={{ $json.Address }}"
+            },
+            {
+              "name": "EventTheme",
+              "value": "={{ $json.EventTheme }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "id": "beca4bc3-9eed-4168-a6f1-146a064ec222",
+      "name": "Extract Form Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        280,
+        -340
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Thank you for your photography inquiry, {{$node['Extract Form Data'].json.clientName}}!",
+        "message": "Hi {{$node['Extract Form Data'].json.clientName}},\n\nThank you for reaching out! We're excited about the possibility of capturing your {{$node['Extract Form Data'].json.eventType}}.\n\nWe'll be in touch within 24 hours to discuss your vision and next steps.\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "bf1006d5-1173-4d8a-bbfa-8380285d42e3",
+      "name": "Send Greeting Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        940,
+        -440
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "team": "9016422610",
+        "space": "90164370074",
+        "folderless": true,
+        "list": "901609367310",
+        "name": "={{ $json.name }}",
+        "additionalFields": {
+          "customFieldsJson": "={\n  \"313791a2-ae39-46e9-ad87-f7a6d1b6d4d3\": \"{{$json.email}}\",\n  \"474350d0-8374-49d2-b7a5-8cced530ffad\": \"{{$json.phone}}\",\n  \"517764bd-683c-4346-9092-504bfbeff365\": \"{{$json.address}}\",\n  \"1cf51ad7-5f53-4730-8483-91785feae2e7\": \"{{$json.website}}\",\n  \"7100a5eb-fba6-4c48-98b5-25017d150bb1\": \"{{$json.budget}}\",\n  \"9587960a-c301-42a3-ac4b-616acb73c83a\": \"{{$json.message}}\",\n  \"22e95b7c-b0fc-4035-bcd4-f1b327f5d10d\": \"{{$json.eventDate}}\",\n  \"754cbd0f-699d-4273-809f-4ba0eea28002\": \"{{$json.eventTheme}}\",\n  \"3b4acb37-724a-452a-80ef-db9e182c747b\": \"{{$json.eventType}}\",\n  \"1db4e7bc-c8ab-4099-a196-7a79b63273e8\": \"{{$json.name}}\"\n}\n"
+        }
+      },
+      "id": "c0ae8163-1ce8-46c5-bc58-0b631bee08db",
+      "name": "Create ClickUp Task",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -200
+      ],
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "5ERftdH7Sk5TJC02",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3,
+        "unit": "seconds"
+      },
+      "id": "41aaab74-b269-4e26-946a-dac6951131dd",
+      "name": "Wait 30 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        -340
+      ],
+      "webhookId": "31eb316b-95dc-4eda-a413-4039b695e4c4"
+    },
+    {
+      "parameters": {
+        "subject": "Let's schedule your photography consultation, {{$node['Extract Form Data'].json.clientName}}",
+        "message": "Hi {{$node['Extract Form Data'].json.clientName}},\n\nI'd love to learn more about your {{$node['Extract Form Data'].json.eventType}} and discuss how we can bring your vision to life.\n\nPlease select a convenient time for a 30-minute discovery call: https://calendly.com/your-calendly-link\n\nLooking forward to speaking with you!\n\nBest regards,\nYour Photography Team",
+        "additionalFields": {}
+      },
+      "id": "193db6a7-473a-48e3-af77-898b733ade78",
+      "name": "Send Calendly Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        -440
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "HwIjKCniygOjVZuR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "id": "={{ $('Create ClickUp Task').item.json.id }}",
+        "updateFields": {
+          "status": "scheduling call"
+        }
+      },
+      "id": "f56ed3f9-3641-4037-b86c-12878c940dda",
+      "name": "Update Status - Scheduling",
+      "type": "n8n-nodes-base.clickUp",
+      "typeVersion": 1,
+      "position": [
+        1480,
+        -120
+      ],
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "5ERftdH7Sk5TJC02",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Lead Form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "Phone",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Website"
+            },
+            {
+              "fieldLabel": "EventDate",
+              "fieldType": "date"
+            },
+            {
+              "fieldLabel": "EventTheme"
+            },
+            {
+              "fieldLabel": "Address"
+            },
+            {
+              "fieldLabel": "Budget",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Message"
+            },
+            {
+              "fieldLabel": "EventType"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        60,
+        -340
+      ],
+      "id": "84202385-a919-4484-a0a7-b6ca044f2501",
+      "name": "On form submission",
+      "webhookId": "9f9d75de-6c40-4730-a2a4-6ddc63ea112a"
+    },
+    {
+      "parameters": {
+        "url": "https://api.clickup.com/api/v2/list/901609367310/field",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "clickUpOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1100,
+        20
+      ],
+      "id": "1b78f2d4-bc8e-4b26-b350-d1320da3f334",
+      "name": "HTTP Request",
+      "credentials": {
+        "clickUpOAuth2Api": {
+          "id": "5ERftdH7Sk5TJC02",
+          "name": "ClickUp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"name\": \"{{$json.Name}}\",\n  \"email\": \"{{$json.Email}}\",\n  \"phone\": \"{{$json.Phone.toString()}}\",\n  \"website\": \"{{$json.Website}}\",\n  \"address\": \"{{$json.Address}}\",\n  \"budget\": \"{{$json.Budget}}\",\n  \"message\": \"{{$json.Message}}\",\n  \"eventTheme\": \"{{$json.EventTheme}}\",\n  \"eventType\": \"{{$json.EventType}}\",\n  \"eventDate\": \"{{$json.EventDate}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        300,
+        0
+      ],
+      "id": "09902286-63d2-4fb0-80a6-bab678fe5a43",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.clickup.com/api/v2/list/901609367310/task",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "pk_96820488_9YPZBXQQIJX6RU36OUZV82MZYLWF813J"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "JSON",
+        "body": "{   \"name\": \"Lead - Sunny\",   \"status\": \"new lead\",   \"custom_fields\": [     {       \"id\": \"313791a2-ae39-46e9-ad87-f7a6d1b6d4d3\",       \"value\": \"suneel@suneelp.com\"     },     {       \"id\": \"474350d0-8374-49d2-b7a5-8cced530ffad\",       \"value\": \"+639685595258\"     },     {       \"id\": \"517764bd-683c-4346-9092-504bfbeff365\",       \"value\": \"Baguio\"     },     {       \"id\": \"1cf51ad7-5f53-4730-8483-91785feae2e7\",       \"value\": \"https://suneelp.com\"     },     {       \"id\": \"7100a5eb-fba6-4c48-98b5-25017d150bb1\",       \"value\": 2000     },     {       \"id\": \"9587960a-c301-42a3-ac4b-616acb73c83a\",       \"value\": \"Hello\"     },     {       \"id\": \"22e95b7c-b0fc-4035-bcd4-f1b327f5d10d\",       \"value\": 1750963200000     },     {       \"id\": \"754cbd0f-699d-4273-809f-4ba0eea28002\",       \"value\": \"Rustic\"     },     {       \"id\": \"3b4acb37-724a-452a-80ef-db9e182c747b\",       \"value\": \"b32f5fac-b6bd-43af-86ab-fddcb2591fb6\"     },     {       \"id\": \"1db4e7bc-c8ab-4099-a196-7a79b63273e8\",       \"value\": \"Sunny\"     }   ] }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        0
+      ],
+      "id": "5409673c-bf6e-4a7b-a813-b8c0af32252a",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Name": "Sunny",
+          "Email": "suneel@suneelp.com",
+          "Phone": 9685595258,
+          "Website": "suneelp.com",
+          "EventDate": "2025-06-27",
+          "EventTheme": "Rustic",
+          "Address": "Baguio",
+          "Budget": 2000,
+          "Message": "Hello",
+          "EventType": "Wedding",
+          "submittedAt": "2025-06-25T00:18:41.672-04:00",
+          "formMode": "test"
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "name": "Sunny",
+          "email": "suneel@suneelp.com",
+          "phone": "9685595258",
+          "website": "suneelp.com",
+          "address": "Baguio",
+          "budget": "2000",
+          "message": "Hello",
+          "eventTheme": "Rustic",
+          "eventType": "Wedding",
+          "eventDate": "2025-06-27"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Extract Form Data": {
+      "main": [
+        [
+          {
+            "node": "Create ClickUp Task",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Greeting Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Greeting Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create ClickUp Task": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 Minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Send Calendly Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Status - Scheduling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract Form Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fa344afc-6b98-4831-b1ab-9371cce721b8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4275106c8fd02c2533edab3f7741b7db420af0691c825fa5d46bbabd00ca51b7"
+  },
+  "id": "9GsLBiQDuNGIn1gN",
+  "tags": [
+    {
+      "createdAt": "2025-06-21T04:43:25.850Z",
+      "updatedAt": "2025-06-21T04:43:25.850Z",
+      "id": "AzmQYH3UHtQQ4KLW",
+      "name": "Sales Funnel"
+    },
+    {
+      "createdAt": "2025-06-21T04:43:41.023Z",
+      "updatedAt": "2025-06-21T04:43:41.023Z",
+      "id": "SdEyU151wZVOsuZr",
+      "name": "Photography Agency"
+    }
+  ]
+}
